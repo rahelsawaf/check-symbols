@@ -2,11 +2,11 @@ import requests
 from telegram.ext import Updater, CommandHandler
 
 # Your Telegram bot token
-BOT_TOKEN = ""
+BOT_TOKEN = "6997982299:AAG72UFdN47fnjUDEASoQVrIzePL4ZlSeLA"
 
 # CryptoCompare API details
 CRYPTOCOMPARE_API_URL = "https://min-api.cryptocompare.com/data/histoday"
-API_KEY = ""
+API_KEY = "72a7a3627d030f1b8f06ea07f5e30f32007d4e6e338ae584010feb82dab6f86e"
 
 def start(update, context):
     """Send a welcome message when the command /start is issued."""
