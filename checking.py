@@ -68,7 +68,7 @@ def check_symbol_exists(symbol: str):
             "tsym": "USDT",
             "limit": 1,  # Only fetch 1 day of data to check if the symbol exists
             "api_key": API_KEY,
-            "e": "Kucoin"
+            "e": "Bitget"
         }
         response = requests.get(CRYPTOCOMPARE_API_URL, params=params)
         data = response.json()
