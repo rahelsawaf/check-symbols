@@ -1,5 +1,5 @@
 import requests
-from telegram.ext import Updater, CommandHandler
+import telebot
 
 # Your Telegram bot token
 BOT_TOKEN = "6997982299:AAG72UFdN47fnjUDEASoQVrIzePL4ZlSeLA"
@@ -8,21 +8,31 @@ BOT_TOKEN = "6997982299:AAG72UFdN47fnjUDEASoQVrIzePL4ZlSeLA"
 CRYPTOCOMPARE_API_URL = "https://min-api.cryptocompare.com/data/histoday"
 API_KEY = "72a7a3627d030f1b8f06ea07f5e30f32007d4e6e338ae584010feb82dab6f86e"
 
-def start(update, context):
+# Initialize bot
+bot = telebot.TeleBot(BOT_TOKEN)
+
+
+@bot.message_handler(commands=['start'])
+def start(message):
     """Send a welcome message when the command /start is issued."""
-    update.message.reply_text(
-        "Welcome to the Crypto Bot!\n\n"
+    bot.reply_to(
+        message, "Welcome to the Crypto Bot!\n\n"
         "Use /check <symbol1> <symbol2> ... to check if cryptocurrency symbols exist."
     )
 
-def check_symbol(update, context):
+
+@bot.message_handler(commands=['check'])
+def check_symbol(message):
     """Check if the given cryptocurrency symbols exist."""
     try:
         # Extract symbols from the user's message
-        symbols = [symbol.upper() for symbol in context.args]
+        symbols = message.text.split()[1:]
 
         if not symbols:
-            update.message.reply_text("Please provide at least one symbol. Usage: /check <symbol1> <symbol2> ...")
+            bot.reply_to(
+                message,
+                "Please provide at least one symbol. Usage: /check <symbol1> <symbol2> ..."
+            )
             return
 
         # Initialize lists for found and not found symbols
@@ -30,6 +40,7 @@ def check_symbol(update, context):
         not_found_symbols = []
 
         for symbol in symbols:
+            symbol = symbol.upper()
             # Check if the symbol exists using the API
             exists = check_symbol_exists(symbol)
             if exists:
@@ -54,10 +65,11 @@ def check_symbol(update, context):
         else:
             response_message += "\n**Not Found Symbols:**\nNo symbols not found.\n"
 
-        update.message.reply_text(response_message)
+        bot.reply_to(message, response_message)
 
     except Exception as e:
-        update.message.reply_text(f"An error occurred: {e}")
+        bot.reply_to(message, f"An error occurred: {e}")
+
 
 def check_symbol_exists(symbol: str):
     """Check if a given symbol exists using the CryptoCompare API."""
@@ -66,7 +78,8 @@ def check_symbol_exists(symbol: str):
         params = {
             "fsym": symbol,
             "tsym": "USDT",
-            "limit": 1,  # Only fetch 1 day of data to check if the symbol exists
+            "limit":
+            1,  # Only fetch 1 day of data to check if the symbol exists
             "api_key": API_KEY,
             "e": "Bitget"
         }
@@ -83,21 +96,7 @@ def check_symbol_exists(symbol: str):
         print(f"Error checking symbol {symbol}: {e}")
         return False
 
-def main():
-    """Start the bot."""
-    # Create the Updater and pass it your bot's token
-    updater = Updater(BOT_TOKEN)
-
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
-
-    # Register command handlers
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("check", check_symbol))
-
-    # Start the bot
-    updater.start_polling()
-    updater.idle()
 
 if __name__ == "__main__":
-    main()
+    print("Bot started...")
+    bot.infinity_polling()
